@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,15 +15,14 @@
 
         body {
             font-family: Arial, sans-serif;
-            background: #f5f7fb;
+            background: #f4f6fb;
             color: #111827;
         }
 
-        nav {
+        header {
             background: #111827;
             color: white;
-            padding: 18px 6%;
-
+            padding: 20px 6%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -35,58 +33,60 @@
             font-weight: bold;
         }
 
-        nav a {
+        .home-btn {
             background: #2563eb;
             color: white;
-            text-decoration: none;
-            padding: 12px 22px;
+            border: none;
+            padding: 12px 28px;
             border-radius: 8px;
+            font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
         }
 
         .container {
             width: 90%;
-            max-width: 1150px;
-            margin: 40px auto;
+            max-width: 1200px;
+            margin: 50px auto;
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 35px;
         }
 
         .checkout-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.2fr 1fr;
             gap: 30px;
         }
 
-        .box {
+        .card {
             background: white;
-            padding: 28px;
-            border-radius: 15px;
-
+            padding: 35px;
+            border-radius: 16px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
 
-        h2 {
+        .card h2 {
             margin-bottom: 25px;
             font-size: 26px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
-
         label {
             display: block;
-            font-weight: bold;
+            margin-top: 18px;
             margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 16px;
         }
 
         input,
         textarea {
             width: 100%;
-            padding: 14px;
-
+            padding: 15px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
-
             font-size: 16px;
         }
 
@@ -95,73 +95,46 @@
             resize: vertical;
         }
 
-        .product {
+        .summary-item {
             display: flex;
-            gap: 15px;
-
-            padding: 15px 0;
-
+            justify-content: space-between;
+            padding: 12px 0;
             border-bottom: 1px solid #e5e7eb;
         }
 
-        .product img {
-            width: 80px;
-            height: 80px;
-
-            object-fit: cover;
-
-            border-radius: 8px;
-        }
-
-        .product-info {
-            flex: 1;
-        }
-
-        .product-name {
-            font-weight: bold;
-            font-size: 17px;
-        }
-
-        .product-price {
-            margin-top: 7px;
-            color: #2563eb;
-            font-weight: bold;
-        }
-
-        .summary-row {
+        .total {
             display: flex;
             justify-content: space-between;
-
-            margin-top: 18px;
-
-            font-size: 17px;
-        }
-
-        .total {
-            border-top: 1px solid #ddd;
-
-            margin-top: 20px;
-            padding-top: 20px;
-
             font-size: 24px;
             font-weight: bold;
+            margin-top: 25px;
+        }
+
+        .payment {
+            margin-top: 25px;
+        }
+
+        .payment label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payment input {
+            width: auto;
         }
 
         .place-order {
             width: 100%;
-
-            margin-top: 25px;
+            margin-top: 30px;
             padding: 16px;
-
             background: #2563eb;
             color: white;
-
             border: none;
             border-radius: 8px;
-
             font-size: 18px;
             font-weight: bold;
-
             cursor: pointer;
         }
 
@@ -169,184 +142,122 @@
             background: #1d4ed8;
         }
 
+        .place-order:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
         .empty {
             text-align: center;
-            padding: 50px 20px;
-        }
-
-        .empty p {
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-
-        .continue {
-            display: inline-block;
-
-            background: #2563eb;
-            color: white;
-
-            padding: 12px 20px;
-
-            border-radius: 8px;
-
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        #message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
-            font-weight: bold;
+            padding: 40px;
+            font-size: 20px;
         }
 
         @media (max-width: 800px) {
             .checkout-grid {
                 grid-template-columns: 1fr;
             }
+
+            h1 {
+                font-size: 32px;
+            }
         }
     </style>
-
 </head>
-
 
 <body>
 
+<header>
+    <div class="logo">🛒 FlashMart</div>
 
-<nav>
-
-    <div class="logo">
-        🛒 FlashMart
-    </div>
-
-    <a href="/">
+    <button class="home-btn" onclick="goHome()">
         Home
-    </a>
-
-</nav>
-
+    </button>
+</header>
 
 <div class="container">
 
+    <h1>Checkout</h1>
+
     <div class="checkout-grid">
 
-
         <!-- DELIVERY DETAILS -->
+        <div class="card">
 
-        <div class="box">
-
-            <h2>
-                📦 Delivery Details
-            </h2>
-
+            <h2>📦 Delivery Details</h2>
 
             <form id="checkoutForm">
 
-                <div class="form-group">
+                <label>Full Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Enter your full name"
+                    required
+                >
+
+                <label>Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+                <label>Phone Number</label>
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="Enter phone number"
+                    required
+                >
+
+                <label>Address</label>
+                <textarea
+                    id="address"
+                    placeholder="Enter delivery address"
+                    required
+                ></textarea>
+
+                <label>City</label>
+                <input
+                    type="text"
+                    id="city"
+                    placeholder="Enter city"
+                    required
+                >
+
+                <label>Pincode</label>
+                <input
+                    type="text"
+                    id="pincode"
+                    placeholder="Enter pincode"
+                    required
+                >
+
+                <div class="payment">
+
+                    <h2>Payment Method</h2>
 
                     <label>
-                        Full Name
+                        <input
+                            type="radio"
+                            name="payment"
+                            value="Cash on Delivery"
+                            checked
+                        >
+                        Cash on Delivery
                     </label>
 
-                    <input
-                        type="text"
-                        id="name"
-                        placeholder="Enter your full name"
-                        required
-                    >
-
                 </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        placeholder="Enter your email"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Phone Number
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="phone"
-                        placeholder="Enter your phone number"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Address
-                    </label>
-
-                    <textarea
-                        id="address"
-                        placeholder="Enter your complete address"
-                        required
-                    ></textarea>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        City
-                    </label>
-
-                    <input
-                        type="text"
-                        id="city"
-                        placeholder="Enter your city"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Pincode
-                    </label>
-
-                    <input
-                        type="text"
-                        id="pincode"
-                        placeholder="Enter pincode"
-                        required
-                    >
-
-                </div>
-
 
                 <button
                     type="submit"
                     class="place-order"
+                    id="placeOrderBtn"
                 >
-                    🛍️ Place Order
+                    Place Order
                 </button>
-
-
-                <div id="message"></div>
 
             </form>
 
@@ -354,21 +265,20 @@
 
 
         <!-- ORDER SUMMARY -->
+        <div class="card">
 
-        <div class="box">
+            <h2>Order Summary</h2>
 
-            <h2>
-                🛒 Order Summary
-            </h2>
+            <div id="orderItems">
+                Loading cart...
+            </div>
 
-
-            <div id="orderItems"></div>
-
-
-            <div id="summary"></div>
+            <div class="total">
+                <span>Total</span>
+                <span id="totalAmount">₹0</span>
+            </div>
 
         </div>
-
 
     </div>
 
@@ -377,220 +287,97 @@
 
 <script>
 
-    // ==========================================
+    // ==============================
+    // LIVE BACKEND URL
+    // ==============================
+
+    const API_URL =
+        "https://flashmart-backend.onrender.com";
+
+
+    // ==============================
     // GET CART
-    // ==========================================
+    // ==============================
 
-    function getCart() {
-
-        try {
-
-            return JSON.parse(
-                localStorage.getItem("cart")
-            ) || [];
-
-        } catch (error) {
-
-            console.log(error);
-
-            return [];
-
-        }
-
-    }
+    let cart = JSON.parse(
+        localStorage.getItem("cart") || "[]"
+    );
 
 
-    // ==========================================
-    // LOAD CHECKOUT
-    // ==========================================
+    // ==============================
+    // DISPLAY CART
+    // ==============================
 
-    function loadCheckout() {
+    function loadCart() {
 
-        const cart = getCart();
-
-        const orderItems =
+        const container =
             document.getElementById("orderItems");
 
-        const summary =
-            document.getElementById("summary");
+        const totalElement =
+            document.getElementById("totalAmount");
 
+        if (!cart || cart.length === 0) {
 
-        // EMPTY CART
-
-        if (cart.length === 0) {
-
-            orderItems.innerHTML = `
-
+            container.innerHTML = `
                 <div class="empty">
-
-                    <h3>
-                        Your cart is empty 🛒
-                    </h3>
-
-                    <p>
-                        Please add products first.
-                    </p>
-
-                    <a
-                        href="/"
-                        class="continue"
-                    >
-                        Continue Shopping
-                    </a>
-
+                    Your cart is empty.
                 </div>
-
             `;
 
-            summary.innerHTML = `
-
-                <div class="summary-row total">
-
-                    <span>
-                        Total
-                    </span>
-
-                    <span>
-                        ₹0
-                    </span>
-
-                </div>
-
-            `;
+            totalElement.textContent = "₹0";
 
             return;
-
         }
 
-
-        // ======================================
-        // PRODUCTS
-        // ======================================
-
-        let html = "";
 
         let total = 0;
 
-        let itemCount = 0;
+        container.innerHTML = "";
 
 
         cart.forEach(item => {
 
-            const price =
-                Number(item.price) || 0;
-
             const quantity =
                 Number(item.quantity) || 1;
+
+            const price =
+                Number(item.price) || 0;
 
             const itemTotal =
                 price * quantity;
 
-
             total += itemTotal;
 
-            itemCount += quantity;
 
+            const div =
+                document.createElement("div");
 
-            html += `
+            div.className =
+                "summary-item";
 
-                <div class="product">
+            div.innerHTML = `
+                <span>
+                    ${item.name} × ${quantity}
+                </span>
 
-                    <img
-                        src="${item.image}"
-                        alt="${item.name}"
-                    >
-
-                    <div class="product-info">
-
-                        <div class="product-name">
-                            ${item.name}
-                        </div>
-
-                        <div>
-                            Quantity: ${quantity}
-                        </div>
-
-                        <div class="product-price">
-                            ₹${itemTotal.toLocaleString("en-IN")}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <strong>
+                    ₹${itemTotal.toLocaleString("en-IN")}
+                </strong>
             `;
+
+            container.appendChild(div);
 
         });
 
 
-        orderItems.innerHTML = html;
-
-
-        // ======================================
-        // SUMMARY
-        // ======================================
-
-        summary.innerHTML = `
-
-            <div class="summary-row">
-
-                <span>
-                    Items
-                </span>
-
-                <span>
-                    ${itemCount}
-                </span>
-
-            </div>
-
-
-            <div class="summary-row">
-
-                <span>
-                    Subtotal
-                </span>
-
-                <span>
-                    ₹${total.toLocaleString("en-IN")}
-                </span>
-
-            </div>
-
-
-            <div class="summary-row">
-
-                <span>
-                    Delivery
-                </span>
-
-                <span>
-                    FREE
-                </span>
-
-            </div>
-
-
-            <div class="summary-row total">
-
-                <span>
-                    Total
-                </span>
-
-                <span>
-                    ₹${total.toLocaleString("en-IN")}
-                </span>
-
-            </div>
-
-        `;
-
+        totalElement.textContent =
+            "₹" + total.toLocaleString("en-IN");
     }
 
 
-    // ==========================================
+    // ==============================
     // PLACE ORDER
-    // ==========================================
+    // ==============================
 
     document
         .getElementById("checkoutForm")
@@ -599,202 +386,186 @@
             event.preventDefault();
 
 
-            const cart = getCart();
+            if (!cart || cart.length === 0) {
 
-
-            if (cart.length === 0) {
-
-                alert(
-                    "Your cart is empty!"
-                );
+                alert("Your cart is empty.");
 
                 return;
-
             }
 
 
-            // CUSTOMER DETAILS
-
-            const customer = {
-
-                name:
-                    document
-                    .getElementById("name")
-                    .value
-                    .trim(),
-
-                email:
-                    document
-                    .getElementById("email")
-                    .value
-                    .trim(),
-
-                phone:
-                    document
-                    .getElementById("phone")
-                    .value
-                    .trim(),
-
-                address:
-                    document
-                    .getElementById("address")
-                    .value
-                    .trim(),
-
-                city:
-                    document
-                    .getElementById("city")
-                    .value
-                    .trim(),
-
-                pincode:
-                    document
-                    .getElementById("pincode")
-                    .value
-                    .trim()
-
-            };
-
-
             const button =
-                document.querySelector(
-                    ".place-order"
-                );
+                document.getElementById("placeOrderBtn");
 
 
             button.disabled = true;
 
-            button.innerText =
+            button.textContent =
                 "Processing Order...";
+
+
+            const name =
+                document.getElementById("name").value.trim();
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const phone =
+                document.getElementById("phone").value.trim();
+
+            const address =
+                document.getElementById("address").value.trim();
+
+            const city =
+                document.getElementById("city").value.trim();
+
+            const pincode =
+                document.getElementById("pincode").value.trim();
+
+            const paymentMethod =
+                document.querySelector(
+                    'input[name="payment"]:checked'
+                ).value;
+
+
+            // Calculate total
+
+            let total = 0;
+
+            cart.forEach(item => {
+
+                total +=
+                    Number(item.price || 0) *
+                    Number(item.quantity || 1);
+
+            });
+
+
+            // Order data
+
+            const orderData = {
+
+                customer: {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    address: address,
+                    city: city,
+                    pincode: pincode
+                },
+
+                items: cart.map(item => ({
+
+                    id: item.id,
+
+                    name: item.name,
+
+                    price: Number(item.price),
+
+                    image: item.image || "",
+
+                    description:
+                        item.description || "",
+
+                    quantity:
+                        Number(item.quantity) || 1
+
+                })),
+
+                totalAmount: total,
+
+                paymentMethod: paymentMethod
+
+            };
+
+
+            console.log(
+                "Sending order:",
+                orderData
+            );
 
 
             try {
 
-                // ==================================
-                // SEND TO SERVER
-                // ==================================
+                const response = await fetch(
+                    `${API_URL}/api/orders`,
+                    {
+                        method: "POST",
 
-                const response =
-                    await fetch(
-                        "/api/orders",
-                        {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    customer:
-                                        customer,
-
-                                    items:
-                                        cart
-
-                                })
-
-                        }
-                    );
+                        body:
+                            JSON.stringify(orderData)
+                    }
+                );
 
 
-                const result =
+                console.log(
+                    "Response status:",
+                    response.status
+                );
+
+
+                const data =
                     await response.json();
 
 
-                // ==================================
-                // SUCCESS
-                // ==================================
-
-                if (response.ok &&
-                    result.success) {
+                console.log(
+                    "Order response:",
+                    data
+                );
 
 
-                    // Clear cart
-
-                    localStorage.removeItem(
-                        "cart"
-                    );
-
-
-                    document.getElementById(
-                        "message"
-                    ).style.display = "block";
-
-
-                    document.getElementById(
-                        "message"
-                    ).innerHTML = `
-
-                        ✅ Order placed successfully!
-
-                        <br><br>
-
-                        Order ID:
-                        <strong>
-                            ${result.orderId}
-                        </strong>
-
-                        <br>
-
-                        Total:
-                        <strong>
-                            ₹${result.total.toLocaleString("en-IN")}
-                        </strong>
-
-                    `;
-
-
-                    document.getElementById(
-                        "message"
-                    ).style.background =
-                        "#dcfce7";
-
-
-                    document.getElementById(
-                        "message"
-                    ).style.color =
-                        "#166534";
-
-
-                    // Reset form
-
-                    document
-                        .getElementById(
-                            "checkoutForm"
-                        )
-                        .reset();
-
-
-                    // Refresh summary
-
-                    loadCheckout();
-
-
-                    button.innerText =
-                        "Order Placed ✅";
-
-                }
-
-                else {
+                if (!response.ok) {
 
                     throw new Error(
-                        result.error ||
+                        data.message ||
+                        data.error ||
                         "Order failed"
                     );
 
                 }
 
 
+                if (!data.success && !data.order) {
+
+                    throw new Error(
+                        "Order was not created"
+                    );
+
+                }
+
+
+                // Clear cart
+
+                localStorage.removeItem("cart");
+
+
+                // Save order information
+
+                if (data.order) {
+
+                    localStorage.setItem(
+                        "lastOrder",
+                        JSON.stringify(data.order)
+                    );
+
+                }
+
+
+                // Redirect to success page
+
+                window.location.href =
+                    "checkout-success.html";
+
+
             } catch (error) {
 
-                console.log(
-                    "Order Error:",
+                console.error(
+                    "ORDER ERROR:",
                     error
                 );
 
@@ -806,26 +577,33 @@
 
                 button.disabled = false;
 
-                button.innerText =
-                    "🛍️ Place Order";
+                button.textContent =
+                    "Place Order";
 
             }
 
         });
 
 
-    // ==========================================
-    // START
-    // ==========================================
+    // ==============================
+    // HOME
+    // ==============================
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        loadCheckout
-    );
+    function goHome() {
+
+        window.location.href =
+            "index.html";
+
+    }
+
+
+    // ==============================
+    // LOAD
+    // ==============================
+
+    loadCart();
 
 </script>
 
-
 </body>
-
 </html>
