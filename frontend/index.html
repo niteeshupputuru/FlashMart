@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>FlashMart</title>
+    <title>FlashMart - Online Shopping</title>
 
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -19,14 +20,20 @@
             color: #111827;
         }
 
-        /* NAVBAR */
+        /* =========================
+           NAVBAR
+        ========================= */
+
         nav {
             background: #111827;
             color: white;
-            padding: 20px 6%;
+            padding: 18px 6%;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .logo {
@@ -34,29 +41,34 @@
             font-weight: bold;
         }
 
-        .nav-buttons {
+        .nav-links {
             display: flex;
             gap: 12px;
+            align-items: center;
         }
 
-        .nav-buttons a {
+        .nav-links a {
             text-decoration: none;
             color: white;
             background: #2563eb;
             padding: 12px 20px;
             border-radius: 8px;
             font-weight: bold;
+            transition: 0.3s;
         }
 
-        .nav-buttons a:hover {
+        .nav-links a:hover {
             background: #1d4ed8;
         }
 
-        /* HERO */
+        /* =========================
+           HERO
+        ========================= */
+
         .hero {
             background: white;
             text-align: center;
-            padding: 90px 20px;
+            padding: 80px 20px;
         }
 
         .hero h1 {
@@ -75,45 +87,58 @@
             background: #2563eb;
             color: white;
             text-decoration: none;
-            padding: 16px 30px;
+            padding: 15px 32px;
             border-radius: 10px;
             font-size: 18px;
             font-weight: bold;
         }
 
-        /* PRODUCTS */
+        .shop-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* =========================
+           PRODUCTS SECTION
+        ========================= */
+
         .products-section {
             padding: 70px 6%;
         }
 
         .products-section h2 {
             text-align: center;
-            font-size: 40px;
-            margin-bottom: 50px;
+            font-size: 38px;
+            margin-bottom: 45px;
         }
 
-        #productsContainer {
+        .products-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 30px;
         }
+
+        /* =========================
+           PRODUCT CARD
+        ========================= */
 
         .product-card {
             background: white;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             transition: 0.3s;
         }
 
         .product-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
         .product-card img {
             width: 100%;
-            height: 260px;
+            height: 250px;
             object-fit: cover;
+            display: block;
         }
 
         .product-info {
@@ -125,50 +150,74 @@
             margin-bottom: 10px;
         }
 
-        .description {
+        .product-info p {
             color: #6b7280;
+            line-height: 1.5;
             min-height: 45px;
-            margin-bottom: 15px;
         }
 
         .price {
             font-size: 22px;
             font-weight: bold;
             color: #2563eb;
-            margin-bottom: 15px;
+            margin: 15px 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .view-btn {
+            background: #e5e7eb;
+            color: #111827;
         }
 
         .cart-btn {
-            width: 100%;
-            border: none;
             background: #2563eb;
             color: white;
-            padding: 13px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
+        }
+
+        .view-btn:hover {
+            background: #d1d5db;
         }
 
         .cart-btn:hover {
             background: #1d4ed8;
         }
 
+        /* =========================
+           LOADING / ERROR
+        ========================= */
+
         .loading {
             text-align: center;
             font-size: 20px;
             color: #6b7280;
-            grid-column: 1 / -1;
+            padding: 40px;
         }
 
         .error {
             text-align: center;
             color: red;
-            font-size: 20px;
-            grid-column: 1 / -1;
+            padding: 40px;
+            font-size: 18px;
         }
 
-        /* FOOTER */
+        /* =========================
+           FOOTER
+        ========================= */
+
         footer {
             background: #111827;
             color: white;
@@ -177,15 +226,18 @@
             margin-top: 30px;
         }
 
-        /* MOBILE */
-        @media (max-width: 600px) {
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
 
             nav {
                 flex-direction: column;
                 gap: 20px;
             }
 
-            .nav-buttons {
+            .nav-links {
                 flex-wrap: wrap;
                 justify-content: center;
             }
@@ -197,20 +249,28 @@
             .hero p {
                 font-size: 18px;
             }
+
+            .products-section h2 {
+                font-size: 30px;
+            }
         }
     </style>
 </head>
 
+
 <body>
 
-    <!-- NAVBAR -->
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
     <nav>
 
         <div class="logo">
             🛒 FlashMart
         </div>
 
-        <div class="nav-buttons">
+        <div class="nav-links">
 
             <a href="index.html">
                 Home
@@ -225,7 +285,8 @@
             </a>
 
             <a href="cart.html">
-                Cart 🛍️ <span id="cartCount">0</span>
+                Cart 🛍️
+                <span id="cartCount">0</span>
             </a>
 
         </div>
@@ -233,7 +294,10 @@
     </nav>
 
 
-    <!-- HERO -->
+    <!-- =========================
+         HERO
+    ========================== -->
+
     <section class="hero">
 
         <h1>
@@ -251,14 +315,23 @@
     </section>
 
 
-    <!-- PRODUCTS -->
-    <section class="products-section" id="products">
+    <!-- =========================
+         PRODUCTS
+    ========================== -->
+
+    <section
+        class="products-section"
+        id="products"
+    >
 
         <h2>
             Our Products
         </h2>
 
-        <div id="productsContainer">
+        <div
+            id="productsContainer"
+            class="products-container"
+        >
 
             <div class="loading">
                 Loading products...
@@ -269,112 +342,208 @@
     </section>
 
 
-    <!-- FOOTER -->
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
     <footer>
 
-        © 2026 FlashMart. All Rights Reserved.
+        <p>
+            © 2026 FlashMart. All Rights Reserved.
+        </p>
 
     </footer>
 
 
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
     <script>
 
-        // ==========================================
-        // BACKEND API
-        // ==========================================
+        /* =====================================
+           BACKEND API
+        ===================================== */
 
         const API_URL =
             "https://flashmart-backend.onrender.com";
 
 
-        // ==========================================
-        // CART COUNT
-        // ==========================================
+        /* =====================================
+           GET CART
+        ===================================== */
 
-        function updateCartCount() {
+        function getCart() {
 
-            const cart =
-                JSON.parse(localStorage.getItem("cart")) || [];
+            try {
 
-            let total = 0;
+                return JSON.parse(
+                    localStorage.getItem("cart") || "[]"
+                );
 
-            cart.forEach(item => {
-                total += item.quantity || 1;
-            });
+            } catch (error) {
 
-            document.getElementById("cartCount").textContent = total;
+                return [];
+
+            }
+
         }
 
 
-        // ==========================================
-        // ADD TO CART
-        // ==========================================
+        /* =====================================
+           UPDATE CART COUNT
+        ===================================== */
+
+        function updateCartCount() {
+
+            const cart = getCart();
+
+            let count = 0;
+
+            cart.forEach(item => {
+
+                count += item.quantity || 1;
+
+            });
+
+            const cartCount =
+                document.getElementById("cartCount");
+
+            if (cartCount) {
+
+                cartCount.textContent = count;
+
+            }
+
+        }
+
+
+        /* =====================================
+           ADD TO CART
+        ===================================== */
 
         function addToCart(product) {
 
-            let cart =
-                JSON.parse(localStorage.getItem("cart")) || [];
+            let cart = getCart();
 
-            const existing =
-                cart.find(item => item.id === product.id);
+            const existingProduct =
+                cart.find(
+                    item =>
+                        Number(item.id) === Number(product.id)
+                );
 
-            if (existing) {
 
-                existing.quantity =
-                    (existing.quantity || 1) + 1;
+            if (existingProduct) {
+
+                existingProduct.quantity =
+                    (existingProduct.quantity || 1) + 1;
 
             } else {
 
                 cart.push({
+
                     id: product.id,
+
                     name: product.name,
+
                     price: product.price,
+
                     image: product.image,
+
+                    description: product.description,
+
                     quantity: 1
+
                 });
 
             }
+
 
             localStorage.setItem(
                 "cart",
                 JSON.stringify(cart)
             );
 
+
             updateCartCount();
 
-            alert(product.name + " added to cart 🛒");
+
+            alert(
+                product.name + " added to cart 🛒"
+            );
+
         }
 
 
-        // ==========================================
-        // LOAD PRODUCTS
-        // ==========================================
+        /* =====================================
+           VIEW PRODUCT
+        ===================================== */
+
+        function viewProduct(id) {
+
+            window.location.href =
+                "product.html?id=" + id;
+
+        }
+
+
+        /* =====================================
+           LOAD PRODUCTS
+        ===================================== */
 
         async function loadProducts() {
 
             const container =
-                document.getElementById("productsContainer");
+                document.getElementById(
+                    "productsContainer"
+                );
+
+
+            container.innerHTML = `
+                <div class="loading">
+                    Loading products...
+                </div>
+            `;
+
 
             try {
 
-                const response = await fetch(
+                console.log(
+                    "Connecting to:",
                     API_URL + "/api/products"
                 );
 
-                if (!response.ok) {
-                    throw new Error(
-                        "Products API failed"
+
+                const response =
+                    await fetch(
+                        API_URL + "/api/products"
                     );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "API request failed: " +
+                        response.status
+                    );
+
                 }
+
 
                 const products =
                     await response.json();
 
-                container.innerHTML = "";
+
+                console.log(
+                    "Products received:",
+                    products
+                );
 
 
-                // Check products
-                if (!products.length) {
+                if (
+                    !Array.isArray(products) ||
+                    products.length === 0
+                ) {
 
                     container.innerHTML = `
                         <div class="error">
@@ -383,10 +552,13 @@
                     `;
 
                     return;
+
                 }
 
 
-                // Create product cards
+                container.innerHTML = "";
+
+
                 products.forEach(product => {
 
                     const card =
@@ -401,6 +573,7 @@
                         <img
                             src="${product.image}"
                             alt="${product.name}"
+                            onerror="this.src='https://via.placeholder.com/800x600?text=FlashMart'"
                         >
 
                         <div class="product-info">
@@ -409,7 +582,7 @@
                                 ${product.name}
                             </h3>
 
-                            <p class="description">
+                            <p>
                                 ${product.description}
                             </p>
 
@@ -417,16 +590,27 @@
                                 ₹${product.price}
                             </div>
 
-                            <button
-                                class="cart-btn"
-                                onclick='addToCart(${JSON.stringify(product)})'
-                            >
-                                Add to Cart 🛒
-                            </button>
+                            <div class="buttons">
+
+                                <button
+                                    class="btn view-btn"
+                                    onclick="viewProduct(${product.id})"
+                                >
+                                    View Details
+                                </button>
+
+                                <button
+                                    class="btn cart-btn"
+                                    onclick='addToCart(${JSON.stringify(product)})'
+                                >
+                                    Add to Cart
+                                </button>
+
+                            </div>
 
                         </div>
-
                     `;
+
 
                     container.appendChild(card);
 
@@ -437,9 +621,10 @@
             catch (error) {
 
                 console.error(
-                    "Products Error:",
+                    "Products loading error:",
                     error
                 );
+
 
                 container.innerHTML = `
 
@@ -460,13 +645,13 @@
         }
 
 
-        // ==========================================
-        // PAGE LOAD
-        // ==========================================
+        /* =====================================
+           PAGE LOAD
+        ===================================== */
 
         document.addEventListener(
             "DOMContentLoaded",
-            function() {
+            function () {
 
                 updateCartCount();
 
@@ -478,4 +663,5 @@
     </script>
 
 </body>
+
 </html>
