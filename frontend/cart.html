@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FlashMart - Cart</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6f8;
+            color: #111827;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            background: #2563eb;
+            padding: 10px 18px;
+            border-radius: 8px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 330px;
+            gap: 25px;
+        }
+
+        .cart-box,
+        .summary {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #eee;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-info h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .price {
+            color: #2563eb;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .quantity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .quantity button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #e5e7eb;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .quantity span {
+            min-width: 25px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .remove {
+            margin-top: 10px;
+            border: none;
+            background: #ef4444;
+            color: white;
+            padding: 7px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .item-total {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .summary h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .total {
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .checkout {
+            width: 100%;
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .checkout:hover {
+            background: #1d4ed8;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 70px 20px;
+        }
+
+        .empty h3 {
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        .shop {
+            display: inline-block;
+            margin-top: 20px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 800px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>🛒 FlashMart</h1>
+
+    <nav>
+        <a href="/">Home</a>
+    </nav>
+
+</header>
+
+
+<div class="container">
+
+    <h2>Your Shopping Cart</h2>
+
+    <div class="cart-layout">
+
+        <!-- CART PRODUCTS -->
+
+        <div class="cart-box" id="cartItems"></div>
+
+
+        <!-- ORDER SUMMARY -->
+
+        <div class="summary">
+
+            <h3>Order Summary</h3>
+
+            <div class="summary-row">
+                <span>Items</span>
+                <span id="itemCount">0</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">₹0</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Delivery</span>
+                <span>FREE</span>
+            </div>
+
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">₹0</span>
+            </div>
+
+            <button class="checkout" onclick="goToCheckout()">
+                Proceed to Checkout
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function getCart() {
+
+    return JSON.parse(
+        localStorage.getItem("flashmartCart") || "[]"
+    );
+
+}
+
+
+function saveCart(cart) {
+
+    localStorage.setItem(
+        "flashmartCart",
+        JSON.stringify(cart)
+    );
+
+}
+
+
+function displayCart() {
+
+    const cart = getCart();
+
+    const cartItems = document.getElementById("cartItems");
+
+    let total = 0;
+    let itemCount = 0;
+
+
+    if (cart.length === 0) {
+
+        cartItems.innerHTML = `
+            <div class="empty">
+
+                <h3>Your Cart is Empty 🛒</h3>
+
+                <p>Please add products from the home page.</p>
+
+                <a href="/" class="shop">
+                    Continue Shopping
+                </a>
+
+            </div>
+        `;
+
+        document.getElementById("itemCount").textContent = "0";
+        document.getElementById("subtotal").textContent = "₹0";
+        document.getElementById("total").textContent = "₹0";
+
+        return;
+    }
+
+
+    cartItems.innerHTML = cart.map((item, index) => {
+
+        const price = Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 1;
+
+        const itemTotal = price * quantity;
+
+        total += itemTotal;
+        itemCount += quantity;
+
+
+        return `
+
+            <div class="cart-item">
+
+                <img
+                    src="${item.image || 'https://via.placeholder.com/110'}"
+                    alt="${item.name}"
+                >
+
+                <div class="item-info">
+
+                    <h3>${item.name}</h3>
+
+                    <div class="price">
+                        ₹${price}
+                    </div>
+
+                    <div class="quantity">
+
+                        <button
+                            onclick="changeQuantity(${index}, -1)"
+                        >
+                            −
+                        </button>
+
+                        <span>
+                            ${quantity}
+                        </span>
+
+                        <button
+                            onclick="changeQuantity(${index}, 1)"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                    <button
+                        class="remove"
+                        onclick="removeProduct(${index})"
+                    >
+                        Remove
+                    </button>
+
+                </div>
+
+                <div class="item-total">
+                    ₹${itemTotal}
+                </div>
+
+            </div>
+
+        `;
+
+    }).join("");
+
+
+    document.getElementById("itemCount").textContent =
+        itemCount;
+
+    document.getElementById("subtotal").textContent =
+        "₹" + total;
+
+    document.getElementById("total").textContent =
+        "₹" + total;
+
+}
+
+
+function changeQuantity(index, change) {
+
+    const cart = getCart();
+
+    cart[index].quantity =
+        Number(cart[index].quantity) + change;
+
+
+    if (cart[index].quantity <= 0) {
+
+        cart.splice(index, 1);
+
+    }
+
+
+    saveCart(cart);
+
+    displayCart();
+
+}
+
+
+function removeProduct(index) {
+
+    const cart = getCart();
+
+    cart.splice(index, 1);
+
+    saveCart(cart);
+
+    displayCart();
+
+}
+
+
+function goToCheckout() {
+
+    const cart = getCart();
+
+
+    if (cart.length === 0) {
+
+        alert("Your cart is empty!");
+
+        return;
+    }
+
+
+    window.location.href = "/checkout";
+
+}
+
+
+displayCart();
+
+</script>
+
+</body>
+</html>
