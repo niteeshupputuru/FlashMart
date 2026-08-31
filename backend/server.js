@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 
@@ -9,14 +10,9 @@ require("dotenv").config();
 // SETTINGS
 // =====================================================
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 const FRONTEND = path.join(__dirname, "../frontend");
-
-
-// =====================================================
-// MONGODB
-// =====================================================
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -30,42 +26,67 @@ const products = [
         id: 1,
         name: "Premium T-Shirt",
         price: 599,
-        image:
-            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
-        description:
-            "Comfortable premium cotton T-Shirt for everyday use."
+        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
+        description: "Comfortable premium cotton T-Shirt for everyday use."
     },
 
     {
         id: 2,
         name: "Stylish Shoes",
         price: 1299,
-        image:
-            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
-        description:
-            "Comfortable and stylish shoes for daily running and walking."
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+        description: "Comfortable and stylish shoes for daily running and walking."
     },
 
     {
         id: 3,
         name: "Smart Watch",
         price: 1999,
-        image:
-            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
-        description:
-            "Smart fitness watch with modern features."
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+        description: "Smart fitness watch with modern features."
     },
 
     {
         id: 4,
         name: "Backpack",
         price: 899,
-        image:
-            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
-        description:
-            "Durable backpack for college, office and travel."
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+        description: "Durable backpack for college, office and travel."
     }
 ];
+
+
+// =====================================================
+// USER SCHEMA
+// =====================================================
+
+const userSchema = new mongoose.Schema({
+
+    name: {
+        type: String,
+        required: true
+    },
+
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+
+    password: {
+        type: String,
+        required: true
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+
+});
+
+const User = mongoose.model("User", userSchema);
 
 
 // =====================================================
@@ -76,58 +97,57 @@ const orderSchema = new mongoose.Schema({
 
     orderId: {
         type: String,
-        required: true,
         unique: true
     },
 
     customer: {
-
         name: String,
-
         email: String,
-
         phone: String,
-
         address: String,
-
         city: String,
-
         pincode: String
-
     },
 
-    items: [
-
+    products: [
         {
-
             id: Number,
-
             name: String,
-
             price: Number,
-
             image: String,
-
             quantity: Number
-
         }
-
     ],
 
-    total: Number,
+    // Keep items also for compatibility
+    items: [
+        {
+            id: Number,
+            name: String,
+            price: Number,
+            image: String,
+            quantity: Number
+        }
+    ],
 
-    date: {
+    total: {
+        type: Number,
+        required: true
+    },
+
+    status: {
+        type: String,
+        default: "Order Placed"
+    },
+
+    createdAt: {
         type: Date,
         default: Date.now
     }
 
 });
 
-
-const Order = mongoose.model(
-    "Order",
-    orderSchema
-);
+const Order = mongoose.model("Order", orderSchema);
 
 
 // =====================================================
@@ -144,20 +164,13 @@ if (!MONGO_URI) {
         .connect(MONGO_URI)
         .then(() => {
 
-            console.log(
-                "MongoDB Connected Successfully ✅"
-            );
+            console.log("MongoDB Connected Successfully ✅");
 
         })
         .catch((error) => {
 
-            console.log(
-                "MongoDB Connection Failed ❌"
-            );
-
-            console.log(
-                error.message
-            );
+            console.log("MongoDB Connection Failed ❌");
+            console.log(error.message);
 
         });
 
@@ -170,88 +183,64 @@ if (!MONGO_URI) {
 
 function getContentType(filePath) {
 
-    const ext =
-        path.extname(filePath).toLowerCase();
+    const ext = path.extname(filePath).toLowerCase();
 
     const types = {
-
         ".html": "text/html",
-
         ".css": "text/css",
-
         ".js": "application/javascript",
-
         ".json": "application/json",
-
         ".png": "image/png",
-
         ".jpg": "image/jpeg",
-
         ".jpeg": "image/jpeg",
-
         ".gif": "image/gif",
-
         ".svg": "image/svg+xml",
-
         ".ico": "image/x-icon"
-
     };
 
-    return types[ext] ||
-        "application/octet-stream";
+    return types[ext] || "application/octet-stream";
+}
+
+
+// =====================================================
+// SEND JSON
+// =====================================================
+
+function sendJSON(res, statusCode, data) {
+
+    res.writeHead(statusCode, {
+        "Content-Type": "application/json"
+    });
+
+    res.end(JSON.stringify(data));
 
 }
 
 
 // =====================================================
-// SERVE FRONTEND FILE
+// SERVE FILE
 // =====================================================
 
-function serveFile(
-    filePath,
-    res
-) {
+function serveFile(filePath, res) {
 
-    fs.readFile(
-        filePath,
-        (error, data) => {
+    fs.readFile(filePath, (error, data) => {
 
-            if (error) {
+        if (error) {
 
-                res.writeHead(
-                    404,
-                    {
-                        "Content-Type":
-                            "application/json"
-                    }
-                );
+            sendJSON(res, 404, {
+                error: "File not found"
+            });
 
-                res.end(
-                    JSON.stringify({
-                        error:
-                            "File not found"
-                    })
-                );
-
-                return;
-            }
-
-
-            res.writeHead(
-                200,
-                {
-                    "Content-Type":
-                        getContentType(
-                            filePath
-                        )
-                }
-            );
-
-
-            res.end(data);
-
+            return;
         }
-    );
+
+        res.writeHead(200, {
+            "Content-Type": getContentType(filePath)
+        });
+
+        res.end(data);
+
+    });
 
 }
 
@@ -262,52 +251,37 @@ function serveFile(
 
 function getRequestBody(req) {
 
-    return new Promise(
-        (resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
-            let body = "";
+        let body = "";
 
+        req.on("data", (chunk) => {
 
-            req.on(
-                "data",
-                (chunk) => {
+            body += chunk;
 
-                    body += chunk;
+        });
 
-                }
-            );
+        req.on("end", () => {
 
+            try {
 
-            req.on(
-                "end",
-                () => {
+                const data = body
+                    ? JSON.parse(body)
+                    : {};
 
-                    try {
+                resolve(data);
 
-                        const data =
-                            body
-                                ? JSON.parse(body)
-                                : {};
+            } catch (error) {
 
-                        resolve(data);
+                reject(error);
 
-                    } catch (error) {
+            }
 
-                        reject(error);
+        });
 
-                    }
+        req.on("error", reject);
 
-                }
-            );
-
-
-            req.on(
-                "error",
-                reject
-            );
-
-        }
-    );
+    });
 
 }
 
@@ -316,21 +290,16 @@ function getRequestBody(req) {
 // SERVER
 // =====================================================
 
-const server = http.createServer(
-    async (req, res) => {
+const server = http.createServer(async (req, res) => {
 
+    try {
 
-        // Remove query string
+        const fullUrl = new URL(
+            req.url,
+            `http://localhost:${PORT}`
+        );
 
-        const fullUrl =
-            new URL(
-                req.url,
-                `http://localhost:${PORT}`
-            );
-
-
-        const pathname =
-            fullUrl.pathname;
+        const pathname = fullUrl.pathname;
 
 
         // =================================================
@@ -349,16 +318,17 @@ const server = http.createServer(
 
         res.setHeader(
             "Access-Control-Allow-Methods",
-            "GET, POST, OPTIONS"
+            "GET, POST, PUT, OPTIONS"
         );
 
 
+        // =================================================
         // OPTIONS
+        // =================================================
 
         if (req.method === "OPTIONS") {
 
             res.writeHead(204);
-
             res.end();
 
             return;
@@ -376,10 +346,7 @@ const server = http.createServer(
         ) {
 
             serveFile(
-                path.join(
-                    FRONTEND,
-                    "index.html"
-                ),
+                path.join(FRONTEND, "index.html"),
                 res
             );
 
@@ -389,7 +356,45 @@ const server = http.createServer(
 
 
         // =================================================
-        // CART
+        // REGISTER PAGE
+        // =================================================
+
+        if (
+            pathname === "/register" &&
+            req.method === "GET"
+        ) {
+
+            serveFile(
+                path.join(FRONTEND, "register.html"),
+                res
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // LOGIN PAGE
+        // =================================================
+
+        if (
+            pathname === "/login" &&
+            req.method === "GET"
+        ) {
+
+            serveFile(
+                path.join(FRONTEND, "login.html"),
+                res
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // CART PAGE
         // =================================================
 
         if (
@@ -398,10 +403,7 @@ const server = http.createServer(
         ) {
 
             serveFile(
-                path.join(
-                    FRONTEND,
-                    "cart.html"
-                ),
+                path.join(FRONTEND, "cart.html"),
                 res
             );
 
@@ -411,7 +413,7 @@ const server = http.createServer(
 
 
         // =================================================
-        // CHECKOUT
+        // CHECKOUT PAGE
         // =================================================
 
         if (
@@ -420,10 +422,7 @@ const server = http.createServer(
         ) {
 
             serveFile(
-                path.join(
-                    FRONTEND,
-                    "checkout.html"
-                ),
+                path.join(FRONTEND, "checkout.html"),
                 res
             );
 
@@ -433,7 +432,7 @@ const server = http.createServer(
 
 
         // =================================================
-        // PRODUCT
+        // PRODUCT PAGE
         // =================================================
 
         if (
@@ -442,10 +441,7 @@ const server = http.createServer(
         ) {
 
             serveFile(
-                path.join(
-                    FRONTEND,
-                    "product.html"
-                ),
+                path.join(FRONTEND, "product.html"),
                 res
             );
 
@@ -463,17 +459,7 @@ const server = http.createServer(
             req.method === "GET"
         ) {
 
-            res.writeHead(
-                200,
-                {
-                    "Content-Type":
-                        "application/json"
-                }
-            );
-
-            res.end(
-                JSON.stringify(products)
-            );
+            sendJSON(res, 200, products);
 
             return;
 
@@ -485,58 +471,29 @@ const server = http.createServer(
         // =================================================
 
         if (
-            pathname.startsWith(
-                "/api/products/"
-            ) &&
+            pathname.startsWith("/api/products/") &&
             req.method === "GET"
         ) {
 
-            const id =
-                Number(
-                    pathname.split("/").pop()
-                );
+            const id = Number(
+                pathname.split("/").pop()
+            );
 
-
-            const product =
-                products.find(
-                    item =>
-                        item.id === id
-                );
-
+            const product = products.find(
+                item => item.id === id
+            );
 
             if (!product) {
 
-                res.writeHead(
-                    404,
-                    {
-                        "Content-Type":
-                            "application/json"
-                    }
-                );
-
-                res.end(
-                    JSON.stringify({
-                        error:
-                            "Product not found"
-                    })
-                );
+                sendJSON(res, 404, {
+                    error: "Product not found"
+                });
 
                 return;
 
             }
 
-
-            res.writeHead(
-                200,
-                {
-                    "Content-Type":
-                        "application/json"
-                }
-            );
-
-            res.end(
-                JSON.stringify(product)
-            );
+            sendJSON(res, 200, product);
 
             return;
 
@@ -544,7 +501,205 @@ const server = http.createServer(
 
 
         // =================================================
-        // CREATE ORDER
+        // API - REGISTER
+        // =================================================
+
+        if (
+            pathname === "/api/register" &&
+            req.method === "POST"
+        ) {
+
+            const body = await getRequestBody(req);
+
+            const name = body.name?.trim();
+
+            const email = body.email
+                ?.trim()
+                .toLowerCase();
+
+            const password = body.password;
+
+
+            // Validate
+
+            if (!name || !email || !password) {
+
+                sendJSON(res, 400, {
+                    error: "All fields are required"
+                });
+
+                return;
+
+            }
+
+
+            if (password.length < 6) {
+
+                sendJSON(res, 400, {
+                    error: "Password must be at least 6 characters"
+                });
+
+                return;
+
+            }
+
+
+            // Check existing user
+
+            const existingUser = await User.findOne({
+                email: email
+            });
+
+            if (existingUser) {
+
+                sendJSON(res, 409, {
+                    error: "Email already registered"
+                });
+
+                return;
+
+            }
+
+
+            // Hash password
+
+            const hashedPassword = await bcrypt.hash(
+                password,
+                10
+            );
+
+
+            // Create user
+
+            const newUser = new User({
+
+                name: name,
+
+                email: email,
+
+                password: hashedPassword
+
+            });
+
+
+            await newUser.save();
+
+
+            console.log(
+                "New User Registered:",
+                email
+            );
+
+
+            sendJSON(res, 201, {
+
+                success: true,
+
+                message: "Registration successful"
+
+            });
+
+            return;
+
+        }
+
+
+        // =================================================
+        // API - LOGIN
+        // =================================================
+
+        if (
+            pathname === "/api/login" &&
+            req.method === "POST"
+        ) {
+
+            const body = await getRequestBody(req);
+
+            const email = body.email
+                ?.trim()
+                .toLowerCase();
+
+            const password = body.password;
+
+
+            // Validate
+
+            if (!email || !password) {
+
+                sendJSON(res, 400, {
+                    error: "Email and password are required"
+                });
+
+                return;
+
+            }
+
+
+            // Find user
+
+            const user = await User.findOne({
+                email: email
+            });
+
+
+            if (!user) {
+
+                sendJSON(res, 401, {
+                    error: "Invalid email or password"
+                });
+
+                return;
+
+            }
+
+
+            // Compare password
+
+            const passwordMatch =
+                await bcrypt.compare(
+                    password,
+                    user.password
+                );
+
+
+            if (!passwordMatch) {
+
+                sendJSON(res, 401, {
+                    error: "Invalid email or password"
+                });
+
+                return;
+
+            }
+
+
+            console.log(
+                "User Login:",
+                email
+            );
+
+
+            sendJSON(res, 200, {
+
+                success: true,
+
+                message: "Login successful",
+
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email
+                }
+
+            });
+
+            return;
+
+        }
+
+
+        // =================================================
+        // API - CREATE ORDER
         // =================================================
 
         if (
@@ -552,177 +707,139 @@ const server = http.createServer(
             req.method === "POST"
         ) {
 
-            try {
-
-                const body =
-                    await getRequestBody(req);
+            const body = await getRequestBody(req);
 
 
-                // Validate
+            // Customer validation
 
-                if (
-                    !body.customer ||
-                    !body.items ||
-                    !body.items.length
-                ) {
+            if (
+                !body.customer ||
+                !body.customer.name ||
+                !body.customer.email
+            ) {
 
-                    res.writeHead(
-                        400,
-                        {
-                            "Content-Type":
-                                "application/json"
-                        }
-                    );
+                sendJSON(res, 400, {
 
-                    res.end(
-                        JSON.stringify({
-                            error:
-                                "Customer details and items are required"
-                        })
-                    );
+                    success: false,
 
-                    return;
+                    error: "Customer details are required"
 
-                }
-
-
-                // Generate order ID
-
-                const orderId =
-                    "FM" +
-                    Date.now();
-
-
-                // Calculate total again
-
-                let total = 0;
-
-
-                body.items.forEach(
-                    item => {
-
-                        const price =
-                            Number(
-                                item.price
-                            ) || 0;
-
-                        const quantity =
-                            Number(
-                                item.quantity
-                            ) || 1;
-
-                        total +=
-                            price *
-                            quantity;
-
-                    }
-                );
-
-
-                // Create order
-
-                const newOrder =
-                    new Order({
-
-                        orderId:
-
-                            orderId,
-
-                        customer:
-
-                            body.customer,
-
-                        items:
-
-                            body.items,
-
-                        total:
-
-                            total
-
-                    });
-
-
-                // Save MongoDB
-
-                await newOrder.save();
-
-
-                console.log(
-                    "New Order:",
-                    orderId
-                );
-
-
-                res.writeHead(
-                    201,
-                    {
-                        "Content-Type":
-                            "application/json"
-                    }
-                );
-
-
-                res.end(
-                    JSON.stringify({
-
-                        success:
-                            true,
-
-                        message:
-                            "Order placed successfully",
-
-                        orderId:
-                            orderId,
-
-                        total:
-                            total
-
-                    })
-                );
-
-
-                return;
-
-            } catch (error) {
-
-                console.log(
-                    "ORDER ERROR:",
-                    error.message
-                );
-
-
-                res.writeHead(
-                    500,
-                    {
-                        "Content-Type":
-                            "application/json"
-                    }
-                );
-
-
-                res.end(
-                    JSON.stringify({
-
-                        success:
-                            false,
-
-                        error:
-                            "Order could not be placed"
-
-                    })
-                );
-
+                });
 
                 return;
 
             }
 
+
+            // Accept products OR items
+
+            const orderProducts =
+                body.products ||
+                body.items ||
+                [];
+
+
+            if (!orderProducts.length) {
+
+                sendJSON(res, 400, {
+
+                    success: false,
+
+                    error: "Cart is empty"
+
+                });
+
+                return;
+
+            }
+
+
+            // Calculate total
+
+            let total = 0;
+
+            orderProducts.forEach(item => {
+
+                const price =
+                    Number(item.price) || 0;
+
+                const quantity =
+                    Number(item.quantity) || 1;
+
+                total += price * quantity;
+
+            });
+
+
+            // Generate order ID
+
+            const orderId =
+                "FM" + Date.now();
+
+
+            // Create order
+
+            const newOrder = new Order({
+
+                orderId: orderId,
+
+                customer: {
+
+                    name: body.customer.name,
+
+                    email: body.customer.email,
+
+                    phone: body.customer.phone || "",
+
+                    address: body.customer.address || "",
+
+                    city: body.customer.city || "",
+
+                    pincode: body.customer.pincode || ""
+
+                },
+
+                products: orderProducts,
+
+                items: orderProducts,
+
+                total: total,
+
+                status: "Order Placed"
+
+            });
+
+
+            // Save
+
+            await newOrder.save();
+
+
+            console.log(
+                "New Order:",
+                orderId
+            );
+
+
+            sendJSON(res, 201, {
+
+                success: true,
+
+                message: "Order placed successfully",
+
+                orderId: orderId,
+
+                total: total
+
+            });
+
+            return;
+
         }
 
 
         // =================================================
-        // GET ALL ORDERS
+        // API - GET ALL ORDERS
         // =================================================
 
         if (
@@ -730,55 +847,15 @@ const server = http.createServer(
             req.method === "GET"
         ) {
 
-            try {
-
-                const orders =
-                    await Order.find()
-                        .sort({
-                            date: -1
-                        });
+            const orders = await Order.find()
+                .sort({
+                    createdAt: -1
+                });
 
 
-                res.writeHead(
-                    200,
-                    {
-                        "Content-Type":
-                            "application/json"
-                    }
-                );
+            sendJSON(res, 200, orders);
 
-
-                res.end(
-                    JSON.stringify(
-                        orders
-                    )
-                );
-
-
-                return;
-
-            } catch (error) {
-
-                res.writeHead(
-                    500,
-                    {
-                        "Content-Type":
-                            "application/json"
-                    }
-                );
-
-
-                res.end(
-                    JSON.stringify({
-                        error:
-                            "Could not get orders"
-                    })
-                );
-
-
-                return;
-
-            }
+            return;
 
         }
 
@@ -791,41 +868,23 @@ const server = http.createServer(
             req.method === "GET"
         ) {
 
-            let fileName;
+            const allowedFiles = [
+                "index.html",
+                "cart.html",
+                "checkout.html",
+                "product.html",
+                "register.html",
+                "login.html"
+            ];
 
 
-            if (
-                pathname === "/index.html"
-            ) {
-
-                fileName =
-                    "index.html";
-
-            } else if (
-                pathname === "/cart.html"
-            ) {
-
-                fileName =
-                    "cart.html";
-
-            } else if (
-                pathname === "/checkout.html"
-            ) {
-
-                fileName =
-                    "checkout.html";
-
-            } else if (
-                pathname === "/product.html"
-            ) {
-
-                fileName =
-                    "product.html";
-
-            }
+            const fileName =
+                pathname.startsWith("/")
+                    ? pathname.substring(1)
+                    : pathname;
 
 
-            if (fileName) {
+            if (allowedFiles.includes(fileName)) {
 
                 serveFile(
                     path.join(
@@ -846,37 +905,44 @@ const server = http.createServer(
         // 404
         // =================================================
 
-        res.writeHead(
-            404,
-            {
-                "Content-Type":
-                    "application/json"
-            }
+        sendJSON(res, 404, {
+            error: "Page not found"
+        });
+
+
+    } catch (error) {
+
+        console.log(
+            "SERVER ERROR:",
+            error
         );
 
 
-        res.end(
-            JSON.stringify({
-                error:
-                    "Page not found"
-            })
-        );
+        sendJSON(res, 500, {
+
+            success: false,
+
+            error: "Internal server error"
+
+        });
 
     }
-);
+
+});
 
 
 // =====================================================
 // START SERVER
 // =====================================================
 
-server.listen(
-    PORT,
-    () => {
+server.listen(PORT, "0.0.0.0", () => {
 
-        console.log(
-            `FlashMart running on http://localhost:${PORT}`
-        );
+    console.log(
+        `FlashMart running on port ${PORT}`
+    );
 
-    }
-);
+    console.log(
+        `Frontend Folder: ${FRONTEND}`
+    );
+
+});
